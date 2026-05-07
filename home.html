@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Social Feed Online</title>
+
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:Arial,sans-serif;
+    }
+
+    body{
+      background:#111;
+      color:white;
+    }
+
+    .container{
+      max-width:500px;
+      margin:auto;
+      padding:20px;
+    }
+
+    h1{
+      text-align:center;
+      margin-bottom:20px;
+    }
+
+    input, textarea{
+      width:100%;
+      padding:12px;
+      margin-top:10px;
+      border:none;
+      border-radius:10px;
+      outline:none;
+    }
+
+    textarea{
+      resize:none;
+      height:100px;
+    }
+
+    button{
+      width:100%;
+      padding:12px;
+      margin-top:10px;
+      border:none;
+      border-radius:10px;
+      background:#00bcd4;
+      color:white;
+      font-size:16px;
+    }
+
+    .admin-box{
+      background:#222;
+      padding:15px;
+      border-radius:15px;
+      margin-bottom:20px;
+      border:1px solid #444;
+    }
+
+    .post{
+      background:#222;
+      padding:15px;
+      border-radius:15px;
+      margin-top:15px;
+      animation:muncul .4s ease;
+    }
+
+    @keyframes muncul{
+      from{
+        opacity:0;
+        transform:translateY(20px);
+      }
+      to{
+        opacity:1;
+        transform:translateY(0);
+      }
+    }
+
+    .post-user{
+      color:#00bcd4;
+      margin-bottom:10px;
+      font-weight:bold;
+    }
+
+    .like{
+      margin-top:10px;
+      cursor:pointer;
+      user-select:none;
+    }
+
+    .comment{
+      background:#333;
+      padding:8px;
+      border-radius:8px;
+      margin-top:8px;
+    }
+
+    .comment-user{
+      color:#00bcd4;
+      font-size:14px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <h1>Social Feed Online</h1>
+
+  <!-- USER -->
+  <input type="text" id="username" placeholder="Nama kamu">
+
+  <!-- ADMIN -->
+  <div class="admin-box">
+    <h2>Admin Post</h2>
+
+    <input type="password"
+    id="adminPass"
+    placeholder="Password admin">
+
+    <textarea
+    id="postInput"
+    placeholder="Tulis postingan..."></textarea>
+
+    <button onclick="addPost()">Post</button>
+  </div>
+
+  <!-- FEED -->
+  <div id="feed"></div>
+
+</div>
+
+<!-- FIREBASE -->
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  updateDoc,
+  doc,
+  onSnapshot,
+  query,
+  orderBy,
+  arrayUnion
+}
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+
+  apiKey: "APIKEY_KAMU",
+
+  authDomain: "PROJECT.firebaseapp.com",
+
+  projectId: "PROJECT",
+
+  storageBucket: "PROJECT.appspot.com",
+
+  messagingSenderId: "ISI",
+
+  appId: "ISI"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const feed = document.getElementById("feed");
+
+
+// ===== POST ADMIN =====
+window.addPost = async function(){
+
+  const pass =
+  document.getElementById("adminPass").value;
+
+  const text =
+  document.getElementById("postInput").value;
+
+  if(pass !== "admin123"){
+    alert("Password admin salah!");
+    return;
+  }
+
+  if(text === ""){
+    alert("Isi postingan dulu!");
+    return;
+  }
+
+  await addDoc(collection(db,"posts"),{
+    user:"ADMIN 👑",
+    text:text,
+    likes:0,
+    comments:[],
+    time:Date.now()
+  });
+
+  document.getElementById("postInput").value="";
+};
+
+
+// ===== LIKE =====
+window.likePost = async function(id,likes){
+
+  const ref = doc(db,"posts",id);
+
+  await updateDoc(ref,{
+    likes:likes + 1
+  });
+};
+
+
+// ===== KOMENTAR =====
+window.addComment = async function(e,id){
+
+  if(e.key === "Enter"){
+
+    const text = e.target.value;
+
+    const user =
+    document.getElementById("username").value;
+
+    if(text === "" || user === ""){
+      return;
+    }
+
+    const ref = doc(db,"posts",id);
+
+    await updateDoc(ref,{
+      comments:arrayUnion({
+        user:user,
+        text:text
+      })
+    });
+
+    e.target.value="";
+  }
+};
+
+
+// ===== REALTIME FEED =====
+const q =
+query(collection(db,"posts"), orderBy("time","desc"));
+
+onSnapshot(q,(snapshot)=>{
+
+  feed.innerHTML="";
+
+  snapshot.forEach((item)=>{
+
+    const data = item.data();
+
+    const div = document.createElement("div");
+
+    div.className="post";
+
+    div.innerHTML = `
+
+      <div class="post-user">
+        ${data.user}
+      </div>
+
+      <div>${data.text}</div>
+
+      <div class="like"
+      onclick="likePost('${item.id}',${data.likes})">
+        ❤️ ${data.likes}
+      </div>
+
+      <div>
+
+        ${data.comments.map(c => `
+
+          <div class="comment">
+
+            <div class="comment-user">
+              ${c.user}
+            </div>
+
+            <div>${c.text}</div>
+
+          </div>
+
+        `).join("")}
+
+      </div>
+
+      <input
+      class="comment-input"
+      placeholder="Komentar..."
+      onkeypress="addComment(event,'${item.id}')">
+
+    `;
+
+    feed.appendChild(div);
+
+  });
+
+});
+
+</script>
+
+</body>
+</html>

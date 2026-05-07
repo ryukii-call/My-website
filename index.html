@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Website Scroll Login</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="container" id="container">
+
+  <!-- PAGE 1 -->
+  <section class="page page1">
+    <img src="mbg.jpg" alt="gambar">
+
+    <div class="overlay">
+   <h1 style="font-size :50px;">Welcome</h1>
+    </div>
+
+    <div class="scroll-indicator">👇</div>
+  </section>
+
+  <!-- PAGE 2 LOGIN -->
+  <section class="page page2">
+    <div class="login-box">
+      <h2>Login</h2>
+      <form id="loginForm">
+        <input type="text" id="username" placeholder="username" required>
+        <input type="password" id="password" placeholder="password" required>
+        
+        <button type="submit">Masuk</button>
+        </form>
+      <p id="error" style="color: red;"></p>
+    </div>
+  </section>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>

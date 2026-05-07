@@ -1,0 +1,116 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  font-family: Arial, sans-serif;
+}
+
+.container {
+  width: 100%;
+  height: 100dvh;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.page {
+  width: 100%;
+  min-height: 100dvh;
+
+  scroll-snap-align: start;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  position: relative;
+}
+
+/* ===== PAGE 1 ===== */
+.page1 img {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.overlay {
+  position: absolute;
+  color: white;
+  text-align: center;
+  z-index: 2;
+}
+
+/* efek gelap */
+.page1::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+}
+
+/* panah animasi */
+.scroll-indicator {
+  position: absolute;
+  bottom: 20px;
+  font-size: 30px;
+  color: white;
+  animation: bounce 1.5s infinite;
+  z-index: 2;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(10px); }
+}
+
+/* ===== PAGE 2 LOGIN ===== */
+.page2 {
+  background: #222;
+  color: white;
+}
+
+.login-box {
+  background: white;
+  color: black;
+  padding: 30px;
+  border-radius: 10px;
+  width: 80%;
+  max-width: 300px;
+  text-align: center;
+}
+
+.login-box input {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.login-box button {
+  width: 100%;
+  padding: 10px;
+  background: #333;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.login-box button:hover {
+  background: #555;
+}
+body {
+  zoom: 1 !important;
+}
