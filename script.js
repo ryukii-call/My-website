@@ -37,7 +37,7 @@ window.onload = function () {
     // ADMIN
     if(
       username === "admin" &&
-      password === "admin123"
+      password === "ryuganteng"
     ){
 
       localStorage.setItem("role", "admin");
@@ -63,7 +63,7 @@ window.onload = function () {
     else{
 
       error.innerHTML =
-      "Username atau password salah!";
+      "Username atau password salah TOLOL!";
 
     }
 
