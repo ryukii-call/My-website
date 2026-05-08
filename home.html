@@ -2,10 +2,13 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport"
+  content="width=device-width, initial-scale=1.0">
+
   <title>Social Feed Online</title>
 
   <style>
+
     *{
       margin:0;
       padding:0;
@@ -27,6 +30,8 @@
     h1{
       text-align:center;
       margin-bottom:20px;
+      margin-top:20px;
+      font-size:45px;
     }
 
     input, textarea{
@@ -36,11 +41,12 @@
       border:none;
       border-radius:10px;
       outline:none;
+      font-size:16px;
     }
 
     textarea{
       resize:none;
-      height:100px;
+      height:120px;
     }
 
     button{
@@ -51,7 +57,8 @@
       border-radius:10px;
       background:#00bcd4;
       color:white;
-      font-size:16px;
+      font-size:18px;
+      cursor:pointer;
     }
 
     .admin-box{
@@ -71,18 +78,22 @@
     }
 
     @keyframes muncul{
+
       from{
         opacity:0;
         transform:translateY(20px);
       }
+
       to{
         opacity:1;
         transform:translateY(0);
       }
+
     }
 
     .post-user{
       color:#00bcd4;
+      font-size:20px;
       margin-bottom:10px;
       font-weight:bold;
     }
@@ -91,6 +102,7 @@
       margin-top:10px;
       cursor:pointer;
       user-select:none;
+      font-size:20px;
     }
 
     .comment{
@@ -104,30 +116,30 @@
       color:#00bcd4;
       font-size:14px;
     }
+
   </style>
 </head>
+
 <body>
 
 <div class="container">
 
   <h1>Social Feed Online</h1>
 
-  <!-- USER -->
-  <input type="text" id="username" placeholder="Nama kamu">
-
   <!-- ADMIN -->
-  <div class="admin-box">
-    <h2>Admin Post</h2>
+  <div class="admin-box" id="adminBox">
 
-    <input type="password"
-    id="adminPass"
-    placeholder="Password admin">
+    <h2>Admin Post</h2>
 
     <textarea
     id="postInput"
-    placeholder="Tulis postingan..."></textarea>
+    placeholder="Tulis sesuatu..."
+    ></textarea>
 
-    <button onclick="addPost()">Post</button>
+    <button onclick="addPost()">
+      Post
+    </button>
+
   </div>
 
   <!-- FEED -->
@@ -135,130 +147,216 @@
 
 </div>
 
-<!-- FIREBASE -->
 <script type="module">
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  initializeApp
+}
+from
+"https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 
 import {
   getFirestore,
   collection,
   addDoc,
-  updateDoc,
-  doc,
   onSnapshot,
   query,
   orderBy,
+  updateDoc,
+  doc,
   arrayUnion
 }
-from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+from
+"https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+
+// FIREBASE CONFIG
 const firebaseConfig = {
 
-  apiKey: "APIKEY_KAMU",
+  apiKey: "AIzaSyA0nxd_RaK5iGpuYI9U93byYpxzNUrLoB8",
 
-  authDomain: "PROJECT.firebaseapp.com",
+  authDomain: "my-wibe.firebaseapp.com",
 
-  projectId: "PROJECT",
+  projectId: "my-wibe",
 
-  storageBucket: "PROJECT.appspot.com",
+  storageBucket: "my-wibe.firebasestorage.app",
 
-  messagingSenderId: "ISI",
+  messagingSenderId: "142370635667",
 
-  appId: "ISI"
+  appId: "1:142370635667:web:38cf62dd2be96c57deb266"
+
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+// CONNECT FIREBASE
+const app =
+initializeApp(firebaseConfig);
 
-const feed = document.getElementById("feed");
+const db =
+getFirestore(app);
 
 
-// ===== POST ADMIN =====
-window.addPost = async function(){
+// AMBIL DATA LOGIN
+const role =
+localStorage.getItem("role");
 
-  const pass =
-  document.getElementById("adminPass").value;
+const username =
+localStorage.getItem("username");
+
+
+// ELEMENT
+const adminBox =
+document.getElementById("adminBox");
+
+const feed =
+document.getElementById("feed");
+
+
+// CEK LOGIN
+if(!role){
+
+  window.location.href =
+  "index.html";
+
+}
+
+
+// USER TIDAK BISA POST
+if(role === "user"){
+
+  adminBox.style.display =
+  "none";
+
+}
+
+
+// POST
+window.addPost =
+async function(){
 
   const text =
   document.getElementById("postInput").value;
 
-  if(pass !== "admin123"){
-    alert("Password admin salah!");
-    return;
-  }
-
   if(text === ""){
-    alert("Isi postingan dulu!");
+
+    alert("Isi post dulu!");
+
     return;
+
   }
 
-  await addDoc(collection(db,"posts"),{
-    user:"ADMIN 👑",
-    text:text,
-    likes:0,
-    comments:[],
-    time:Date.now()
-  });
+  try{
 
-  document.getElementById("postInput").value="";
-};
+    await addDoc(
+      collection(db,"posts"),
+
+      {
+
+        user: username,
+
+        text: text,
+
+        likes: 0,
+
+        comments: [],
+
+        time: Date.now()
+
+      }
+
+    );
+
+    alert("Post berhasil!");
+
+    document.getElementById(
+      "postInput"
+    ).value = "";
+
+  }
+
+  catch(err){
+
+    console.log(err);
+
+    alert("Firebase error!");
+
+  }
+
+}
 
 
-// ===== LIKE =====
-window.likePost = async function(id,likes){
+// LIKE
+window.likePost =
+async function(id, likes){
 
-  const ref = doc(db,"posts",id);
+  const ref =
+  doc(db,"posts",id);
 
   await updateDoc(ref,{
-    likes:likes + 1
+
+    likes: likes + 1
+
   });
-};
+
+}
 
 
-// ===== KOMENTAR =====
-window.addComment = async function(e,id){
+// KOMENTAR
+window.addComment =
+async function(e,id){
 
   if(e.key === "Enter"){
 
-    const text = e.target.value;
+    const text =
+    e.target.value;
 
-    const user =
-    document.getElementById("username").value;
+    if(text === "") return;
 
-    if(text === "" || user === ""){
-      return;
-    }
-
-    const ref = doc(db,"posts",id);
+    const ref =
+    doc(db,"posts",id);
 
     await updateDoc(ref,{
-      comments:arrayUnion({
-        user:user,
-        text:text
+
+      comments: arrayUnion({
+
+        user: username,
+
+        text: text
+
       })
+
     });
 
-    e.target.value="";
+    e.target.value = "";
+
   }
-};
+
+}
 
 
-// ===== REALTIME FEED =====
+// REALTIME FEED
 const q =
-query(collection(db,"posts"), orderBy("time","desc"));
+query(
+
+  collection(db,"posts"),
+
+  orderBy("time","desc")
+
+);
+
 
 onSnapshot(q,(snapshot)=>{
 
-  feed.innerHTML="";
+  feed.innerHTML = "";
 
-  snapshot.forEach((item)=>{
+  snapshot.forEach((docu)=>{
 
-    const data = item.data();
+    const data =
+    docu.data();
 
-    const div = document.createElement("div");
+    const div =
+    document.createElement("div");
 
-    div.className="post";
+    div.className = "post";
 
     div.innerHTML = `
 
@@ -266,35 +364,36 @@ onSnapshot(q,(snapshot)=>{
         ${data.user}
       </div>
 
-      <div>${data.text}</div>
+      <p>${data.text}</p>
 
-      <div class="like"
-      onclick="likePost('${item.id}',${data.likes})">
-        ❤️ ${data.likes}
+      <div
+      class="like"
+      onclick="likePost('${docu.id}', ${data.likes})">
+
+      ❤️ ${data.likes}
+
       </div>
 
-      <div>
+      ${
+        data.comments.map(c => `
 
-        ${data.comments.map(c => `
+        <div class="comment">
 
-          <div class="comment">
-
-            <div class="comment-user">
-              ${c.user}
-            </div>
-
-            <div>${c.text}</div>
-
+          <div class="comment-user">
+            ${c.user}
           </div>
 
-        `).join("")}
+          ${c.text}
 
-      </div>
+        </div>
+
+        `).join("")
+      }
 
       <input
-      class="comment-input"
       placeholder="Komentar..."
-      onkeypress="addComment(event,'${item.id}')">
+      onkeypress="addComment(event,'${docu.id}')"
+      >
 
     `;
 
